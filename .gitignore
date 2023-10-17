@@ -26,4 +26,5 @@ temp/
 .idea/
 .jupyter/
 
-
+# Add 'dataset' folder to .gitignore
+dataset/
