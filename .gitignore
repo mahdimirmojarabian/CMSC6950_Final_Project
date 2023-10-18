@@ -26,5 +26,6 @@ temp/
 .idea/
 .jupyter/
 
-# Add 'dataset' folder to .gitignore
+# Add some folder to .gitignore
 dataset/
+PDF_WORD_Report_Files/
