@@ -41,14 +41,14 @@ For this project I used `Python 3.9.16`. To install the required libraries use t
 pip install -r requirements.txt
 ```
 
-This command will install the libraries listed in the requirements.txt file.
+This command will install the libraries listed in the `requirements.txt` file.
 
 Please remember that you need to have Python and pip installed to use the requirements.txt file.
 
 
 ## Methodology
 
-This project’s main code is located in a Jupyter Notebook file named `code_project.ipynb`. I also put two of my functions that need unit tests in a .py file called `Functions_For_Test.py` and wrote their test contents in the `Test_Functions_For_Test.py` file. For my project, I have used (pandas, numpy, matplotlib, seaborn, and pytest) libraries in Python.
+This project's main code is located in a Jupyter Notebook file named `code_project.ipynb`. I also put two of my functions that need unit tests in a .py file called `Functions_For_Test.py` and wrote their test contents in the `Test_Functions_For_Test.py` file. For my project, I have used (pandas, numpy, matplotlib, seaborn, and pytest) libraries in Python.
 
 
 In the first stage, I constructed a Python panda dataframe from my `AirQuality.csv` file located in the `dataset` folder. I did some initial data cleaning. I dropped extra and all-NaN data (the last 2 columns). I also dropped extra fully empty rows (from index `9357` to `9471`). In the dataframe, missing data was tagged with `-200`. These values were replaced with NaN for easier handling. A function `NaN_Percentages()` was defined to calculate the percentage of NaN values in each column. This was used to decide which columns should be removed. The column "NMHC(GT)" had %90.23 missing values; so, I dropped this attribute because keeping that will not be that helpful for our analysis.
@@ -58,7 +58,7 @@ In the first stage, I constructed a Python panda dataframe from my `AirQuality.c
 
 `Filling in Missed Values Using Interpolation Techniques`: The dataset had many missing values. To handle these, an interpolation technique was used. A copy of the original dataframe was made, and the `interpolate()` function from pandas was used to fill in the missing values. The `nearest` method was used for interpolation, which uses the value of the nearest point to fill the missing values. After filling in the missing values, the function `plot_orig_modif_series()` was used to plot both the original and modified dataframes. This function plotted the original data in red and the modified data in blue, allowing for a clear comparison between the two. The plots were set to show only monthly ticks on the x-axis, and a grid was added for better visualization.
 
-`Data Distribution Visualization`: To assess the distributions of the data, histograms and probability density plots were created for each attribute in the dataset. A function `plot_histograms_density()` was defined to automatically plot both the histogram and probability density function for each attribute on the same plot. The function takes as input the dataframe and the columns to plot. It creates a figure with subplots, one for each attribute. For each attribute, it creates a normalized histogram and a probability density plot on the same subplot. The plots are labeled, and a legend is added for clarity
+`Data Distribution Visualization`: To assess the distributions of the data, histograms and probability density plots were created for each attribute in the dataset. A function `plot_histograms_density()` was defined to automatically plot both the histogram and probability density function for each attribute on the same plot. The function takes as input the dataframe and the columns to plot. It creates a figure with subplots, one for each attribute. For each attribute, it creates a normalized histogram and a probability density plot on the same subplot. The plots are labeled, and a legend is added for clarity.
 
 ### Extreme Value Analysis Task
 A function `my_boxplot()` was defined to create boxplots for each attribute in the dataset. The boxplots were used to visualize the distribution of the data and identify potential outliers. The whiskers of the boxplot were set to 1.5 times the Interquartile Range (IQR) by default.
@@ -223,7 +223,7 @@ for i, day in enumerate(days):
 plt.tight_layout()
 
 # Save the figure
-plt.savefig("C:/Users/Ali/Desktop/weekly_plots.png")
+# plt.savefig("C:/Users/Ali/Desktop/weekly_plots.png")
 
 # Show the figure
 plt.show()
@@ -301,7 +301,7 @@ for i, column in enumerate(columns_to_plot):
 plt.tight_layout()
 
 # Save the figure
-plt.savefig("C:/Users/Ali/Desktop/monthly_plots.png")
+# plt.savefig("C:/Users/Ali/Desktop/monthly_plots.png")
 
 # Show the figure
 plt.show()
