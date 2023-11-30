@@ -97,15 +97,185 @@ A figure with subplots was created, one for each attribute. For each attribute, 
 
 ## Instructions to Reproduce Figures
 
-Here, provide detailed instructions on how to reproduce each figure in your project report. For each figure, you can structure it like this:
+If you open the `code_project.ipynb` file in the `code` folder and open it using `Jupyter Notebook` and click on the `Restart and Run All Cells` option, all results and figures will be produced automatically. You don't need to do any other steps. But just in case if the user want to know more, he can follow the below steps:
 
-### Figure 1: [Figure Title]
-1. **Script:** Mention the script used to generate the figure.
-2. **Data:** Describe the data used for this figure.
-3. **Code:** Provide the code snippet used to generate the figure.
-4. **Description:** Explain what the figure represents.
+At first, import the necessary libraries and load the data.
+`import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import warnings; warnings.filterwarnings('ignore')
+df = pd.read_csv("../dataset/AirQuality.csv", sep=";", decimal=',')`
 
-Repeat the above steps for each figure in your report.
+Secondly, do the initial data cleaning steps:
+1- Dropping the last 2 columns (extra & all-nan)
+2- Dropping extra fully empty rows
+3- Converting "-200" data to "NaN" using `np.nan` and `df.replace`
+4- Dropping NMHC(GT) column as it contains a high percentage of null values
+
+So your dataframe that is `df` is ready to go.
+
+Here, we provided detailed instructions on how to reproduce each figure in the project report. 
+
+### Figure 1: [Illustration of the concentration of NOX(GT) [ppb] for one year (Early March 2004 – Early April 2005)]
+Run the `my_plot(df, df.columns[2:])` command and below code:
+`interpol_df = df.copy()
+interpol_df = interpol_df[interpol_df.columns[2:]] # Because the first two columns are dates.
+
+interpol_df = interpol_df.interpolate(method='nearest')
+
+print("\n")
+print(42*" " + "\033[1;34m Filled NaNs Using Nearest Interpolation Technique \033[0m")
+plot_orig_modif_series(df, interpol_df, interpol_df.columns[2:])`
+
+### Figure 2: [Histograms and probability density plots for each attribute in the dataset]
+Just run this code:
+`plot_histograms_density(df, df.columns[2:])`
+
+### Figure 3: [Comparasion of Outlier Ratios For All Attributes (Both scales 1.5 and 2)]
+Run below code for scale 1.5:
+`
+copy_df1 = df.copy()
+df_out_edited1, outliers1 = remove_outliers_IQR(copy_df1, copy_df1.columns[2:], scale=1.5, mode="replace")
+`
+Run below code for scale 2:
+`copy_df2 = df.copy()
+df_out_edited2, outliers2 = remove_outliers_IQR(copy_df2, copy_df2.columns[2:], scale=2, mode="replace")`
+
+### Figure 4: [Time series plots to display outliers clearly (Both scales 1.5 and 2)]
+Run below code for scale 1.5:
+`copy_df1 = df.copy()
+df_out_edited1, outliers1 = remove_outliers_IQR(copy_df1, copy_df1.columns[2:], scale=1.5, mode="replace")
+
+print("\n\033[1;34m Compare modified and original data and see the outliers\033[0m")
+plot_orig_modif_series(df, df_out_edited1, df.columns[2:])`
+
+Run below code for scale 2:
+`copy_df2 = df.copy()
+df_out_edited2, outliers2 = remove_outliers_IQR(copy_df2, copy_df2.columns[2:], scale=2, mode="replace")
+
+print("\n\033[1;34m Compare modified and original data and see the outliers\033[0m")
+plot_orig_modif_series(df, df_out_edited2, df.columns[2:])`
+
+Before entering the steps for reproducing Figures 5, 6, 7, and 8 do below steps just for one time:
+
+1- Eliminating rows with NaN values:
+`df3 = df_out_edited2.dropna(how='any', axis=0)
+df3.reset_index(drop=True,inplace=True)`
+
+2- Formatting Date and Time to datetime type:
+`df3['Date'] = pd.to_datetime(df3['Date'],dayfirst=True) 
+df3['Time'] = pd.to_datetime(df3['Time'],format= '%H.%M.%S' ).dt.time`
+
+3- Adding a column with the week days:
+`df3['Week Day'] = df3['Date'].dt.day_name()`
+
+4- Rearranging columns:
+`cols = df3.columns.tolist()
+cols = cols[:1] + cols[-1:] + cols[1:14]
+df3 = df3[cols]`
+
+### Figure 5: [Illustration of the CO concentration trend over 24 hours on Monday and Sunday]
+Grouping the data by 'Week Day' and calculating the mean of 'PT08.S1(CO)' for each group
+`grouped_data = df3.groupby('Week Day')['PT08.S1(CO)'].mean().reset_index()`
+
+Run below code:
+```
+days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+# Create a figure with 7 subplots, one for each day of the week
+fig, axs = plt.subplots(7, 1, figsize=(20, 50), dpi=300)
+
+for i, day in enumerate(days):
+    day_data = df3[df3['Week Day'] == day]
+    
+    # Create a bar plot on the i-th subplot
+    sns.barplot(x='Time', y='PT08.S1(CO)', data=day_data.sort_values('Time'), ax=axs[i])
+    
+    axs[i].set_title(f"Mean Hourly Values of PT08.S1(CO) on {day}")
+    axs[i].set_xticklabels(axs[i].get_xticklabels(), rotation=90)
+
+# Adjust the layout
+plt.tight_layout()
+
+# Save the figure
+plt.savefig("C:/Users/Ali/Desktop/weekly_plots.png")
+
+# Show the figure
+plt.show()
+```
+
+### Figure 6: [Heatmap plot to visualize the correlations between the features]
+Run below code:
+`plt.figure(figsize=(10,5))
+sns.heatmap(df3.corr(),cmap='YlGnBu',annot=True)
+plt.show()`
+
+### Figure 7: [Pair plot of our attributes based on the calculated season]
+Extracting season information from Date column:
+`def season(date):
+    year = str(date.year)
+    seasons = {'spring': pd.date_range(start=year+'/03/21', end=year+'/06/20'),
+               'summer': pd.date_range(start=year+'/06/21', end=year+'/09/22'),
+               'autumn': pd.date_range(start=year+'/09/23', end=year+'/12/20')}
+    if date in seasons['spring']:
+        return 'spring'
+    if date in seasons['summer']:
+        return 'summer'
+    if date in seasons['autumn']:
+        return 'autumn'
+    else:
+        return 'winter'
+
+df3['Season'] = df3['Date'].map(season)`
+
+And run below code:
+`sns.pairplot(df3, hue='Season')
+plt.show()`
+
+### Figure 8: [The average values of each attribute of the dataset in 12 months of a year]
+Run below code:
+```
+# List of columns to plot
+columns_to_plot = df3.columns.drop(['Date', 'Month', 'Month_Name', 'Time', 'Week Day', 'Season'])
+
+# Create a figure with subplots, one for each column to plot
+fig, axs = plt.subplots(len(columns_to_plot), 1, figsize=(7, 50), dpi=300)
+
+# Loop over the columns to plot
+for i, column in enumerate(columns_to_plot):
+    # Grouping the data by 'Month' and 'Month_Name' and calculating the mean of the current column for each group
+    grouped_data = df3.groupby(['Month', 'Month_Name'])[column].mean().reset_index()
+
+    # Sorting the grouped data by 'Month'
+    grouped_data = grouped_data.sort_values('Month')
+
+    # Calculate the rolling average of the current column
+    window_size = 1  # You can adjust this value
+    grouped_data['Rolling_Avg'] = grouped_data[column].rolling(window=window_size).mean()
+
+    # Create a bar plot on the i-th subplot
+    sns.barplot(x='Month_Name', y=column, data=grouped_data, ax=axs[i])
+
+    # Add a rolling average line to the plot
+    axs[i].plot(grouped_data['Month_Name'], grouped_data['Rolling_Avg'], color='blue')
+
+    # Set the title of the plot
+    axs[i].set_title(f'Monthly Average Values of "{column}"')
+    axs[i].set_xlabel('')
+
+    # Rotate the x-axis labels for better readability
+    axs[i].set_xticklabels(axs[i].get_xticklabels(), rotation=90)
+
+# Adjust the layout
+plt.tight_layout()
+
+# Save the figure
+plt.savefig("C:/Users/Ali/Desktop/monthly_plots.png")
+
+# Show the figure
+plt.show()
+```
 
 ## Results
 In this part we summarized the results of this project.
@@ -162,19 +332,17 @@ I have computed various descriptive statistics for the outliers in all columns o
 | skew      | 1.5    | 0.7         | 1.7      | 2.4           | 1.1   | 1.8          | 1.1     | 0.9          | -0.1        |     |     |     |
 
 
-For the whisker scale of 1.5, we have more extreme values in all attributes compared to the whisker scale of 2. The NOX(GT) variable has the most extreme values in both whisker scales. We almost don’t have extreme values in the T, RH, and AH variables in both whisker scales.
+For the whisker scale of `1.5`, we have more extreme values in all attributes compared to the whisker scale of `2`. The `NOX(GT)` variable has the most extreme values in both whisker scales. We almost don’t have extreme values in the T, RH, and AH variables in both whisker scales.
 
-We found that usually, in Nov and Dec, we have extreme values. It could be related to temperature inversions, where a layer of warm air traps cooler air near the ground, can prevent pollutants from dispersing, and lead to the buildup of pollutants in the lower atmosphere.
+We found that usually, in `Nov` and `Dec`, we have extreme values. It could be related to temperature inversions, where a layer of warm air traps cooler air near the ground, can prevent pollutants from dispersing, and lead to the buildup of pollutants in the lower atmosphere.
 
 ### Trend Analysis Result
 
-To identify a trend in CO values, I calculated the mean hourly values of PT08.S1(CO) on each day of the week. We illustrated that the two peaks of CO concentration in the city are 8 AM and 7 PM, the beginning and end of office hours, respectively. But on weekends, the peak hours shift to the later hours (11 AM and 7 PM), which makes sense.
-
-This plot is a heatmap plot that uses a correlation matrix (Pearson’s correlation) to visualize the correlations between the features. We can find the correlation between all the pollutants. But we can observe that the columns ‘T,’ ‘RH,’ and ‘AH’ don’t have a strong correlation with other features (pollutants). NO2(GT) and NOx(GT) have correlations with other features but are not that strong as compared to CO(GT), C6H6(GT), and Columns with PTs (PT08). CO(GT) and C6H6(GT) should be the columns that are correlated with all other features and can be the target.
+To identify a trend in CO values, I calculated the mean hourly values of `PT08.S1(CO)` on each day of the week. We illustrated that the two peaks of CO concentration in the city are `8 AM` and `7 PM`, the beginning and end of office hours, respectively. But on weekends, the peak hours shift to the later hours (`11 AM` and `7 PM`), which makes sense.
 
 Also by using a correlation matrix we found that there is a correlation between all the pollutants but the columns ‘T,’ ‘RH,’ and ‘AH’ don’t have a strong correlation with other features (pollutants). NO2(GT) and NOx(GT) have correlations with other features but are not that strong as compared to CO(GT), C6H6(GT), and Columns with PTs (PT08). CO(GT) and C6H6(GT) can be the columns that are correlated with all other features and can be the target.
 
-To look at the trend of each attribute, we have extracted Monthly Average Values for each attribute. We found that in August, we have the minimum values of pollution, maximum temperature, and maximum absolute humidity.
+To look at the trend of each attribute, we have extracted Monthly Average Values for each attribute. We found that in `August`, we have the minimum values of pollution, maximum temperature, and maximum absolute humidity.
 
 
 
