@@ -37,7 +37,9 @@ This project has 3 tasks:
 
 For this project I used `Python 3.9.16`. To install the required libraries use the following command:
 
-`pip install -r requirements.txt`
+```python
+pip install -r requirements.txt
+```
 
 This command will install the libraries listed in the requirements.txt file.
 
@@ -100,12 +102,14 @@ A figure with subplots was created, one for each attribute. For each attribute, 
 If you open the `code_project.ipynb` file in the `code` folder and open it using `Jupyter Notebook` and click on the `Restart and Run All Cells` option, all results and figures will be produced automatically. You don't need to do any other steps. But just in case if the user want to know more, he can follow the below steps:
 
 At first, import the necessary libraries and load the data.
-`import pandas as pd
+```python
+import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import warnings; warnings.filterwarnings('ignore')
-df = pd.read_csv("../dataset/AirQuality.csv", sep=";", decimal=',')`
+df = pd.read_csv("../dataset/AirQuality.csv", sep=";", decimal=',')
+```
 
 Secondly, do the initial data cleaning steps:
 1- Dropping the last 2 columns (extra & all-nan)
@@ -119,68 +123,88 @@ Here, we provided detailed instructions on how to reproduce each figure in the p
 
 ### Figure 1: [Illustration of the concentration of NOX(GT) [ppb] for one year (Early March 2004 – Early April 2005)]
 Run the `my_plot(df, df.columns[2:])` command and below code:
-`interpol_df = df.copy()
+```python
+interpol_df = df.copy()
 interpol_df = interpol_df[interpol_df.columns[2:]] # Because the first two columns are dates.
 
 interpol_df = interpol_df.interpolate(method='nearest')
 
 print("\n")
 print(42*" " + "\033[1;34m Filled NaNs Using Nearest Interpolation Technique \033[0m")
-plot_orig_modif_series(df, interpol_df, interpol_df.columns[2:])`
+plot_orig_modif_series(df, interpol_df, interpol_df.columns[2:])
+```
 
 ### Figure 2: [Histograms and probability density plots for each attribute in the dataset]
 Just run this code:
-`plot_histograms_density(df, df.columns[2:])`
+```python
+plot_histograms_density(df, df.columns[2:])
+```
 
 ### Figure 3: [Comparasion of Outlier Ratios For All Attributes (Both scales 1.5 and 2)]
 Run below code for scale 1.5:
-`
+```python
 copy_df1 = df.copy()
 df_out_edited1, outliers1 = remove_outliers_IQR(copy_df1, copy_df1.columns[2:], scale=1.5, mode="replace")
-`
+```
 Run below code for scale 2:
-`copy_df2 = df.copy()
-df_out_edited2, outliers2 = remove_outliers_IQR(copy_df2, copy_df2.columns[2:], scale=2, mode="replace")`
+```python
+copy_df2 = df.copy()
+df_out_edited2, outliers2 = remove_outliers_IQR(copy_df2, copy_df2.columns[2:], scale=2, mode="replace")
+```
 
 ### Figure 4: [Time series plots to display outliers clearly (Both scales 1.5 and 2)]
 Run below code for scale 1.5:
-`copy_df1 = df.copy()
+```python
+copy_df1 = df.copy()
 df_out_edited1, outliers1 = remove_outliers_IQR(copy_df1, copy_df1.columns[2:], scale=1.5, mode="replace")
 
 print("\n\033[1;34m Compare modified and original data and see the outliers\033[0m")
-plot_orig_modif_series(df, df_out_edited1, df.columns[2:])`
+plot_orig_modif_series(df, df_out_edited1, df.columns[2:])
+```
 
 Run below code for scale 2:
-`copy_df2 = df.copy()
+```python
+copy_df2 = df.copy()
 df_out_edited2, outliers2 = remove_outliers_IQR(copy_df2, copy_df2.columns[2:], scale=2, mode="replace")
 
 print("\n\033[1;34m Compare modified and original data and see the outliers\033[0m")
-plot_orig_modif_series(df, df_out_edited2, df.columns[2:])`
+plot_orig_modif_series(df, df_out_edited2, df.columns[2:])
+```
 
 Before entering the steps for reproducing Figures 5, 6, 7, and 8 do below steps just for one time:
 
 1- Eliminating rows with NaN values:
-`df3 = df_out_edited2.dropna(how='any', axis=0)
-df3.reset_index(drop=True,inplace=True)`
+```python
+df3 = df_out_edited2.dropna(how='any', axis=0)
+df3.reset_index(drop=True,inplace=True)
+```
 
 2- Formatting Date and Time to datetime type:
-`df3['Date'] = pd.to_datetime(df3['Date'],dayfirst=True) 
-df3['Time'] = pd.to_datetime(df3['Time'],format= '%H.%M.%S' ).dt.time`
+```python
+df3['Date'] = pd.to_datetime(df3['Date'],dayfirst=True) 
+df3['Time'] = pd.to_datetime(df3['Time'],format= '%H.%M.%S' ).dt.time
+```
 
 3- Adding a column with the week days:
-`df3['Week Day'] = df3['Date'].dt.day_name()`
+```python
+df3['Week Day'] = df3['Date'].dt.day_name()
+```
 
 4- Rearranging columns:
-`cols = df3.columns.tolist()
+```python
+cols = df3.columns.tolist()
 cols = cols[:1] + cols[-1:] + cols[1:14]
-df3 = df3[cols]`
+df3 = df3[cols]
+```
 
 ### Figure 5: [Illustration of the CO concentration trend over 24 hours on Monday and Sunday]
 Grouping the data by 'Week Day' and calculating the mean of 'PT08.S1(CO)' for each group
-`grouped_data = df3.groupby('Week Day')['PT08.S1(CO)'].mean().reset_index()`
+```python
+grouped_data = df3.groupby('Week Day')['PT08.S1(CO)'].mean().reset_index()
+```
 
 Run below code:
-```
+```python
 days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 
 # Create a figure with 7 subplots, one for each day of the week
@@ -207,13 +231,16 @@ plt.show()
 
 ### Figure 6: [Heatmap plot to visualize the correlations between the features]
 Run below code:
-`plt.figure(figsize=(10,5))
+```python
+plt.figure(figsize=(10,5))
 sns.heatmap(df3.corr(),cmap='YlGnBu',annot=True)
-plt.show()`
+plt.show()
+```
 
 ### Figure 7: [Pair plot of our attributes based on the calculated season]
 Extracting season information from Date column:
-`def season(date):
+```python
+def season(date):
     year = str(date.year)
     seasons = {'spring': pd.date_range(start=year+'/03/21', end=year+'/06/20'),
                'summer': pd.date_range(start=year+'/06/21', end=year+'/09/22'),
@@ -227,15 +254,18 @@ Extracting season information from Date column:
     else:
         return 'winter'
 
-df3['Season'] = df3['Date'].map(season)`
+df3['Season'] = df3['Date'].map(season)
+```
 
 And run below code:
-`sns.pairplot(df3, hue='Season')
-plt.show()`
+```python
+sns.pairplot(df3, hue='Season')
+plt.show()
+```
 
 ### Figure 8: [The average values of each attribute of the dataset in 12 months of a year]
 Run below code:
-```
+```python
 # List of columns to plot
 columns_to_plot = df3.columns.drop(['Date', 'Month', 'Month_Name', 'Time', 'Week Day', 'Season'])
 
